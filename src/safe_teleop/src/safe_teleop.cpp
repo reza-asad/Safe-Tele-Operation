@@ -4,7 +4,9 @@
  * Created by rakesh on 28/09/18.
  */
 #include <limits>
+#include <cmath>
 #include <safe_teleop/safe_teleop.h>
+using namespace std;
 
 namespace safe_teleop
 {
@@ -69,8 +71,16 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-  auto current = linear_speed_.load();
-  while (!linear_speed_.compare_exchange_weak(current, current + linear_vel_increment_));
+  // check if speed limit is satisfied
+  double current = linear_vel_.load();
+  double next_vel_ = current + linear_vel_increment_;
+  if (next_vel_ <= 1.0) {
+    linear_vel_.store(next_vel_);
+    linear_speed_ = abs(linear_vel_);
+  } else {
+  	linear_vel_.store(1.0);
+  	linear_speed_.store(1.0);
+  }
   this->displayCurrentSpeeds();
 }
 

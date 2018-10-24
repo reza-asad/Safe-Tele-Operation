@@ -27,6 +27,8 @@ boost/atomic.hpp
 /home/reza/Documents/CMPT742/Project03/src/safe_teleop/src/safe_teleop.cpp
 limits
 -
+cmath
+-
 safe_teleop/safe_teleop.h
 -
 
