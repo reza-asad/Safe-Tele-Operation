@@ -4,7 +4,6 @@
  * Created by rakesh on 28/09/18.
  */
 #include <limits>
-#include <cmath>
 #include <safe_teleop/safe_teleop.h>
 using namespace std;
 
@@ -71,7 +70,9 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-	ROS_WARN("Method not implemented\r");
+	geometry_msgs::Twist forward;
+	forward.linear.x = linear_vel_;
+	cmd_vel_pub_.publish(forward);
 }
 
 void SafeTeleop::moveBackward()
