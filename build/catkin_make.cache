@@ -1,0 +1,2 @@
+safe_teleop
+-DCATKIN_DEVEL_PREFIX=/home/reza/Documents/CMPT742/Project03/devel -DCMAKE_INSTALL_PREFIX=/home/reza/Documents/CMPT742/Project03/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/reza/Documents/CMPT742/Project03/install
+
+Name: safe_teleop
+Description: Description of safe_teleop
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/reza/Documents/CMPT742/Project03/install/lib 
+Requires: 
