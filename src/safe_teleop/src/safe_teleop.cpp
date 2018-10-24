@@ -70,14 +70,16 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-	geometry_msgs::Twist forward;
-	forward.linear.x = linear_vel_;
-	cmd_vel_pub_.publish(forward);
+	geometry_msgs::Twist forward_step_;
+	forward_step_.linear.x = linear_vel_;
+	cmd_vel_pub_.publish(forward_step_);
 }
 
 void SafeTeleop::moveBackward()
 {
-  ROS_WARN("Method not implemented\r");
+	geometry_msgs::Twist backward_step_;
+	backward_step_.linear.x = -linear_vel_;
+	cmd_vel_pub_.publish(backward_step_);
 }
 
 void SafeTeleop::rotateClockwise()
@@ -98,7 +100,6 @@ void SafeTeleop::stop()
 
 void SafeTeleop::increaseLinearSpeed()
 {
-  // check if speed limit is satisfied
   double current = linear_vel_.load();
   double next_vel_ = current + linear_vel_increment_;
   if (next_vel_ <= max_linear_vel_) {
@@ -117,7 +118,7 @@ void SafeTeleop::decreaseLinearSpeed()
   double current = linear_vel_.load();
   double next_vel_ = current - linear_vel_increment_;
   if (next_vel_ >= -max_linear_vel_) {
-    linear_vel_.store(next_vel_);
+  	linear_vel_.store(next_vel_);
     linear_speed_ = abs(linear_vel_);
   } else {
   	linear_vel_.store(-max_linear_vel_);
