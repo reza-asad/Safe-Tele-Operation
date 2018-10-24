@@ -69,7 +69,9 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-  ROS_WARN("Method not implemented\r");
+  auto current = linear_speed_.load();
+  while (!linear_speed_.compare_exchange_weak(current, current + linear_vel_increment_));
+  this->displayCurrentSpeeds();
 }
 
 void SafeTeleop::moveBackward()
