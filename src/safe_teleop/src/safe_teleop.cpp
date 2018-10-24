@@ -74,12 +74,12 @@ void SafeTeleop::moveForward()
   // check if speed limit is satisfied
   double current = linear_vel_.load();
   double next_vel_ = current + linear_vel_increment_;
-  if (next_vel_ <= 1.0) {
+  if (next_vel_ <= max_linear_vel_) {
     linear_vel_.store(next_vel_);
     linear_speed_ = abs(linear_vel_);
   } else {
-  	linear_vel_.store(1.0);
-  	linear_speed_.store(1.0);
+  	linear_vel_.store(max_linear_vel_);
+  	linear_speed_.store(max_linear_vel_);
   }
   this->displayCurrentSpeeds();
 }
@@ -89,12 +89,12 @@ void SafeTeleop::moveBackward()
   // check if speed limit is satisfied
   double current = linear_vel_.load();
   double next_vel_ = current - linear_vel_increment_;
-  if (next_vel_ >= -1.0) {
+  if (next_vel_ >= -max_linear_vel_) {
     linear_vel_.store(next_vel_);
     linear_speed_ = abs(linear_vel_);
   } else {
-  	linear_vel_.store(-1.0);
-  	linear_speed_.store(1.0);
+  	linear_vel_.store(-max_linear_vel_);
+  	linear_speed_.store(max_linear_vel_);
   }
   this->displayCurrentSpeeds();
 }
