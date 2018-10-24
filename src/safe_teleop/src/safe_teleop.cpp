@@ -71,32 +71,12 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-  // check if speed limit is satisfied
-  double current = linear_vel_.load();
-  double next_vel_ = current + linear_vel_increment_;
-  if (next_vel_ <= max_linear_vel_) {
-    linear_vel_.store(next_vel_);
-    linear_speed_ = abs(linear_vel_);
-  } else {
-  	linear_vel_.store(max_linear_vel_);
-  	linear_speed_.store(max_linear_vel_);
-  }
-  this->displayCurrentSpeeds();
+	ROS_WARN("Method not implemented\r");
 }
 
 void SafeTeleop::moveBackward()
 {
-  // check if speed limit is satisfied
-  double current = linear_vel_.load();
-  double next_vel_ = current - linear_vel_increment_;
-  if (next_vel_ >= -max_linear_vel_) {
-    linear_vel_.store(next_vel_);
-    linear_speed_ = abs(linear_vel_);
-  } else {
-  	linear_vel_.store(-max_linear_vel_);
-  	linear_speed_.store(max_linear_vel_);
-  }
-  this->displayCurrentSpeeds();
+  ROS_WARN("Method not implemented\r");
 }
 
 void SafeTeleop::rotateClockwise()
@@ -117,13 +97,31 @@ void SafeTeleop::stop()
 
 void SafeTeleop::increaseLinearSpeed()
 {
-  ROS_WARN("Method not implemented\r");
+  // check if speed limit is satisfied
+  double current = linear_vel_.load();
+  double next_vel_ = current + linear_vel_increment_;
+  if (next_vel_ <= max_linear_vel_) {
+    linear_vel_.store(next_vel_);
+    linear_speed_ = abs(linear_vel_);
+  } else {
+  	linear_vel_.store(max_linear_vel_);
+  	linear_speed_.store(max_linear_vel_);
+  }
   displayCurrentSpeeds();
 }
 
 void SafeTeleop::decreaseLinearSpeed()
 {
-  ROS_WARN("Method not implemented\r");
+  // check if speed limit is satisfied
+  double current = linear_vel_.load();
+  double next_vel_ = current - linear_vel_increment_;
+  if (next_vel_ >= -max_linear_vel_) {
+    linear_vel_.store(next_vel_);
+    linear_speed_ = abs(linear_vel_);
+  } else {
+  	linear_vel_.store(-max_linear_vel_);
+  	linear_speed_.store(max_linear_vel_);
+  }
   displayCurrentSpeeds();
 }
 
