@@ -84,12 +84,16 @@ void SafeTeleop::moveBackward()
 
 void SafeTeleop::rotateClockwise()
 {
-  ROS_WARN("Method not implemented\r");
+	geometry_msgs::Twist clockwise_rot_;
+	clockwise_rot_.angular.z = -angular_vel_;
+	cmd_vel_pub_.publish(clockwise_rot_);
 }
 
 void SafeTeleop::rotateCounterClockwise()
 {
-  ROS_WARN("Method not implemented\r");
+  geometry_msgs::Twist counter_clockwise_rot_;
+  counter_clockwise_rot_.angular.z = angular_vel_;
+  cmd_vel_pub_.publish(counter_clockwise_rot_);
 }
 
 void SafeTeleop::stop()
