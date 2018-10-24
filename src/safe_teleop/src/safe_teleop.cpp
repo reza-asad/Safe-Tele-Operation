@@ -141,7 +141,15 @@ void SafeTeleop::increaseAngularSpeed()
 
 void SafeTeleop::decreaseAngularSpeed()
 {
-  ROS_WARN("Method not implemented\r");
+	double current = angular_vel_.load();
+	double next_vel_ = current - angular_vel_increment_;
+	if (next_vel_ >= -max_angular_vel_) {
+		angular_vel_.store(next_vel_);
+		angular_speed_ = abs(angular_vel_);
+	} else {
+		angular_vel_.store(-max_angular_vel_);
+		angular_speed_.store(max_angular_vel_);
+	}
   displayCurrentSpeeds();
 }
 
