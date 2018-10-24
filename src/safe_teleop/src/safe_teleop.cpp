@@ -54,9 +54,14 @@ void SafeTeleop::run()
 
     auto last_cmd_vel_age = current_timestamp - last_command_timestamp_;
 
+    // If timeout publish zero velocity
     if (last_cmd_vel_age > max_cmd_vel_age_)
     {
-      ROS_WARN_THROTTLE(1.0, "Timeout not implemented\r");
+      geometry_msgs::Twist zero_cmd_vel;
+      zero_cmd_vel.linear.x = 0;
+      zero_cmd_vel.angular.z = 0;
+      cmd_vel_pub_.publish(zero_cmd_vel);
+      last_command_timestamp_ = current_timestamp;
     }
     else
     {
@@ -98,7 +103,10 @@ void SafeTeleop::rotateCounterClockwise()
 
 void SafeTeleop::stop()
 {
-  ROS_WARN("Method not implemented\r");
+	linear_vel_.store(0.0);
+	linear_speed_.store(0.0);
+	angular_vel_.store(0.0);
+	angular_speed_.store(0.0);
 }
 
 
