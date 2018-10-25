@@ -108,6 +108,7 @@ void SafeTeleop::stop()
 	angular_speed_.store(0.0);
 	step_.linear.x = linear_vel_;
 	step_.angular.z = angular_vel_;
+	cmd_vel_pub_.publish(step_);
 }
 
 
@@ -172,9 +173,9 @@ bool SafeTeleop::checkSafety(double linear_vel)
 {
   sensor_msgs::LaserScan laser_scan_ = getLaserScan();
   double current = step_.linear.x;
+  if (current == 0) return true;
   if (current == linear_vel) {
   	ROS_WARN("Going forward\r");
-  	ROS_INFO("min anagle: %.2lf, max angle: %.2lf\r", laser_scan_.angle_min, laser_scan_.angle_max);
   } else {
   	ROS_WARN("Going backward\r");
   }
