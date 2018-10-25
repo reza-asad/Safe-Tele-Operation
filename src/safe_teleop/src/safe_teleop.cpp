@@ -91,13 +91,13 @@ void SafeTeleop::moveBackward()
 void SafeTeleop::rotateClockwise()
 {
 	step_.angular.z = -angular_vel_;
-	cmd_vel_pub_.publish(step_);
+	last_command_timestamp_ = ros::Time::now().toSec();
 }
 
 void SafeTeleop::rotateCounterClockwise()
 {
   step_.angular.z = angular_vel_;
-  cmd_vel_pub_.publish(step_);
+	last_command_timestamp_ = ros::Time::now().toSec();
 }
 
 void SafeTeleop::stop()
@@ -108,7 +108,8 @@ void SafeTeleop::stop()
 	angular_speed_.store(0.0);
 	step_.linear.x = linear_vel_;
 	step_.angular.z = angular_vel_;
-	cmd_vel_pub_.publish(step_);
+	ROS_WARN("Stop requested\r");
+	last_command_timestamp_ = ros::Time::now().toSec();
 }
 
 
@@ -175,7 +176,15 @@ bool SafeTeleop::checkSafety(double linear_vel)
   double current = step_.linear.x;
   if (current == 0) return true;
   if (current == linear_vel) {
-  	ROS_WARN("Going forward\r");
+  	int start_idx = (M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment;
+  	int end_idx = ceil((M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment);
+  	for (int i=start_idx; i <= end_idx; ++i) {
+  		if ((laser_scan_.ranges[i] + linear_vel_ * min_safety_impact_time_) < min_safety_distance_) {
+  			ROS_WARN("Not safe to go forward\r");
+  			return false;
+  		}
+  	}
+  	// ROS_WARN("increment: %lf \r", (double)laser_scan_.ranges.size());
   } else {
   	ROS_WARN("Going backward\r");
   }
