@@ -29,6 +29,10 @@ SafeTeleop::SafeTeleop() :
   // The subscriber callback is set to the laserScanCallback method of the instantiated object of this class
   laser_scan_sub_ = global_nh.subscribe("scan", 5, &SafeTeleop::laserScanCallback, this);
 
+  // Initialize the step
+  step_.linear.x = linear_vel_;
+  step_.angular.z = angular_vel_;
+
   run_thread_ = boost::thread(&SafeTeleop::run, this);
   displayCurrentSpeeds();
 }
@@ -61,12 +65,11 @@ void SafeTeleop::run()
       zero_cmd_vel.linear.x = 0;
       zero_cmd_vel.angular.z = 0;
       cmd_vel_pub_.publish(zero_cmd_vel);
-      last_command_timestamp_ = current_timestamp;
     }
     else
     {
       auto is_safe = checkSafety(static_cast<double>(linear_vel_));
-      ROS_WARN_THROTTLE(1.0, "command velocity publishing not implemented\r");
+      if (is_safe) cmd_vel_pub_.publish(step_);
     }
 
     r.sleep();
@@ -75,30 +78,26 @@ void SafeTeleop::run()
 
 void SafeTeleop::moveForward()
 {
-	geometry_msgs::Twist forward_step_;
-	forward_step_.linear.x = linear_vel_;
-	cmd_vel_pub_.publish(forward_step_);
+	step_.linear.x = linear_vel_;
+	last_command_timestamp_ = ros::Time::now().toSec();
 }
 
 void SafeTeleop::moveBackward()
 {
-	geometry_msgs::Twist backward_step_;
-	backward_step_.linear.x = -linear_vel_;
-	cmd_vel_pub_.publish(backward_step_);
+	step_.linear.x = -linear_vel_;
+	last_command_timestamp_ = ros::Time::now().toSec();
 }
 
 void SafeTeleop::rotateClockwise()
 {
-	geometry_msgs::Twist clockwise_rot_;
-	clockwise_rot_.angular.z = -angular_vel_;
-	cmd_vel_pub_.publish(clockwise_rot_);
+	step_.angular.z = -angular_vel_;
+	cmd_vel_pub_.publish(step_);
 }
 
 void SafeTeleop::rotateCounterClockwise()
 {
-  geometry_msgs::Twist counter_clockwise_rot_;
-  counter_clockwise_rot_.angular.z = angular_vel_;
-  cmd_vel_pub_.publish(counter_clockwise_rot_);
+  step_.angular.z = angular_vel_;
+  cmd_vel_pub_.publish(step_);
 }
 
 void SafeTeleop::stop()
@@ -107,6 +106,8 @@ void SafeTeleop::stop()
 	linear_speed_.store(0.0);
 	angular_vel_.store(0.0);
 	angular_speed_.store(0.0);
+	step_.linear.x = linear_vel_;
+	step_.angular.z = angular_vel_;
 }
 
 
@@ -169,7 +170,16 @@ void SafeTeleop::decreaseAngularSpeed()
 
 bool SafeTeleop::checkSafety(double linear_vel)
 {
-  ROS_WARN("Method not implemented\r");
+  sensor_msgs::LaserScan laser_scan_ = getLaserScan();
+  double current = step_.linear.x;
+  if (current == linear_vel) {
+  	ROS_WARN("Going forward\r");
+  	ROS_INFO("min anagle: %.2lf, max angle: %.2lf\r", laser_scan_.angle_min, laser_scan_.angle_max);
+  } else {
+  	ROS_WARN("Going backward\r");
+  }
+
+  return true;
 }
 
 } // namespace safe_teleop_node

@@ -160,7 +160,8 @@ protected:
   double min_safety_impact_time_;       ///< Min time for impact to be considered to be safe
   double min_safety_distance_;          ///< Min distance consdiered to be safe
 
-  // add other attributes as required
+  // The robots step e.g forward, backward, etc.
+  geometry_msgs::Twist step_;
 
 };
 } // namespace safe_teleop_node
