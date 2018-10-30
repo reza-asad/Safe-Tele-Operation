@@ -123,6 +123,8 @@ public:
    * @param linear_vel linear velocity of the robot
    * @return whether the velocity is safe
    */
+  bool SafeForward(double linear_vel);
+  bool SafeBackward(double linear_vel);
   bool checkSafety(double linear_vel);
 
   // any other method if needed
