@@ -1,0 +1,8 @@
+prefix=/home/reza/Documents/CMPT742/Project03/devel
+
+Name: icp_slam
+Description: Description of icp_slam
+Version: 0.0.0
+Cflags: -I/home/reza/Documents/CMPT742/Project03/src/icp_slam/include
+Libs: -L/home/reza/Documents/CMPT742/Project03/devel/lib -licp_slam
+Requires: nav_msgs roscpp rospy sensor_msgs std_msgs

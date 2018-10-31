@@ -8,4 +8,3 @@
 
 # modified environment variables
 export PWD="/home/reza/Documents/CMPT742/Project03/build"
-export ROS_PACKAGE_PATH="/home/reza/Documents/CMPT742/Project03/src:/home/reza/cmpt742_ws/src:/opt/ros/kinetic/share"

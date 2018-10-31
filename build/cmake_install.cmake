@@ -118,6 +118,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/reza/Documents/CMPT742/Project03/build/gtest/cmake_install.cmake")
   include("/home/reza/Documents/CMPT742/Project03/build/safe_teleop/cmake_install.cmake")
+  include("/home/reza/Documents/CMPT742/Project03/build/icp_slam/cmake_install.cmake")
 
 endif()
 
