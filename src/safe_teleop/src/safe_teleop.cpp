@@ -22,7 +22,9 @@ SafeTeleop::SafeTeleop() :
   min_safety_distance_(0.5),
   linear_vel_(0.0),
   angular_vel_(0.0),
-  last_command_timestamp_(0.0)
+  last_command_timestamp_(0.0),
+  far_obstacle_distance_(2.0),
+  far_obstacle_min_scan_(0.001)
 {
   ros::NodeHandle global_nh;
   cmd_vel_pub_ = global_nh.advertise<geometry_msgs::Twist>("cmd_vel", 5);
@@ -173,8 +175,11 @@ void SafeTeleop::decreaseAngularSpeed()
 bool SafeTeleop::SafetyOne(double speed, string msg) {
 	int start_idx = (M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment;
 	int end_idx = ceil((M_PI + laser_safety_check_angle_) / laser_scan_.angle_increment);
-	for (int i = start_idx; i <= end_idx; ++i) {
-		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
+	double range_val;
+  for (int i = start_idx; i <= end_idx; ++i) {
+    range_val = laser_scan_.ranges[i];
+    if (laser_scan_.ranges[i] < far_obstacle_min_scan_) range_val = far_obstacle_distance_;
+		if ((range_val - speed * min_safety_impact_time_) < min_safety_distance_) {
 			ROS_WARN(msg.c_str());
 			return false;
 		}
@@ -186,14 +191,19 @@ bool SafeTeleop::SafetyTwo(double speed, string msg) {
 	int start_idx = ceil(laser_safety_check_angle_ / laser_scan_.angle_increment);
 	int end_idx = (2 * M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment;
 	int count = 0;
+  double range_val;
 	for (int i = 0; i < start_idx; ++i) {
-		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
+    range_val = laser_scan_.ranges[i];
+    if (laser_scan_.ranges[i] < far_obstacle_min_scan_) range_val = far_obstacle_distance_;
+		if ((range_val - speed * min_safety_impact_time_) < min_safety_distance_) {
 			ROS_WARN(msg.c_str());
 			return false;
 		}  		
 	}
 	for (int i = end_idx; i < laser_scan_.ranges.size(); ++i) {
-		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
+    range_val = laser_scan_.ranges[i];
+    if (laser_scan_.ranges[i] < far_obstacle_min_scan_) range_val = far_obstacle_distance_;
+		if ((range_val - speed * min_safety_impact_time_) < min_safety_distance_) {
 			ROS_WARN(msg.c_str());
 			return false;
 		}

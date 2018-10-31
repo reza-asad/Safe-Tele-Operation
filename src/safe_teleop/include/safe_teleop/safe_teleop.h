@@ -162,7 +162,8 @@ protected:
   double laser_safety_check_angle_;     ///< Angle of the laser scan to check for safety (in radians)
   double min_safety_impact_time_;       ///< Min time for impact to be considered to be safe
   double min_safety_distance_;          ///< Min distance consdiered to be safe
-
+  double far_obstacle_distance_;        ///< I set the laser scan to this value if the obstacle is too dar.
+  double far_obstacle_min_scan_;        ///< If the laser scan is smaller than this I set it to far_obastacle_distance
   // The robots step e.g forward, backward, etc.
   geometry_msgs::Twist step_;
 
