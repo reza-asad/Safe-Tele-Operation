@@ -170,30 +170,31 @@ void SafeTeleop::decreaseAngularSpeed()
   displayCurrentSpeeds();
 }
 
-bool SafeTeleop::SafeForward(double speed) {
+bool SafeTeleop::SafetyOne(double speed, string msg) {
 	int start_idx = (M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment;
 	int end_idx = ceil((M_PI + laser_safety_check_angle_) / laser_scan_.angle_increment);
 	for (int i = start_idx; i <= end_idx; ++i) {
 		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
-			ROS_WARN("Not safe to go forward\r");
+			ROS_WARN(msg.c_str());
 			return false;
 		}
 	}
 	return true;
 }
 
-bool SafeTeleop::SafeBackward(double speed) {
+bool SafeTeleop::SafetyTwo(double speed, string msg) {
 	int start_idx = ceil(laser_safety_check_angle_ / laser_scan_.angle_increment);
 	int end_idx = (2 * M_PI - laser_safety_check_angle_) / laser_scan_.angle_increment;
-	for (int i = 0; i <= start_idx; ++i) {
+	int count = 0;
+	for (int i = 0; i < start_idx; ++i) {
 		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
-			ROS_WARN("Not safe to go backward\r");
+			ROS_WARN(msg.c_str());
 			return false;
 		}  		
 	}
 	for (int i = end_idx; i < laser_scan_.ranges.size(); ++i) {
 		if ((laser_scan_.ranges[i] - speed * min_safety_impact_time_) < min_safety_distance_) {
-			ROS_WARN("Not safe to go backward\r");
+			ROS_WARN(msg.c_str());
 			return false;
 		}
 	}
@@ -204,10 +205,21 @@ bool SafeTeleop::checkSafety(double linear_vel) {
   sensor_msgs::LaserScan laser_scan_ = getLaserScan();
   double current = step_.linear.x;
   if (current == 0) return true;
+  double angle_min = laser_scan_.angle_min;
   if (current > 0) {
-  	return SafeForkward(current);
+  	string msg = "Not safe to go forward\r";
+  	if (angle_min != 0) {
+  		return SafetyOne(current, msg);
+  	} else {
+  		return SafetyTwo(current, msg);
+  	}
   } else {
-  	return SafeBackward(-current);
+  	string msg = "Not safe to go backward\r";
+  	if (angle_min != 0) {
+  		return SafetyTwo(-current, msg);
+  	} else {
+  		return SafetyOne(-current, msg);
+  	}
   }
 }
 

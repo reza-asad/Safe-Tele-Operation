@@ -20,6 +20,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/atomic.hpp>
 
+using namespace std;
 // it's a good practice to create a library with its own namespace
 namespace safe_teleop
 {
@@ -123,8 +124,8 @@ public:
    * @param linear_vel linear velocity of the robot
    * @return whether the velocity is safe
    */
-  bool SafeForward(double linear_vel);
-  bool SafeBackward(double linear_vel);
+  bool SafetyOne(double linear_vel, string msg);
+  bool SafetyTwo(double linear_vel, string msg);
   bool checkSafety(double linear_vel);
 
   // any other method if needed
