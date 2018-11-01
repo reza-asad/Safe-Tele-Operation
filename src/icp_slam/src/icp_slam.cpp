@@ -40,13 +40,21 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     return false;
   }
 
+  // Find the conversion from map 
+  tf::Transform map_to_curent_frame_tf = tf_map_laser * current_frame_tf_odom_laser.inverse();
   if (isCreateKeyframe(current_frame_tf_odom_laser, tf_map_laser)) {
+    // convert the latest laser map to map frame
+    cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
+    cv::Mat current_laser_scan = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
+
+    // run ICP between current scan and last laser scan
+
+    // align the new laser scan based on ICP
 
   } else {
     // obtain laser pose in map based on odometry update
-    tf::Transform map_to_curent_frame_tf = tf_map_laser * current_frame_tf_odom_laser.inverse();
-    utils::laserScanToPointMat(laser_scan);
-    // last_kf_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, utils::laserScanToPointMat(laser_scan));
+    cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
+    last_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
   }
   // TODO: find the pose of laser in map frame
   // if a new keyframe is created, run ICP

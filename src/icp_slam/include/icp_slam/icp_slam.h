@@ -13,7 +13,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <tf/tf.h>
-#include <icp_slam/utils.h>
+
 #include <opencv2/opencv.hpp>
 
 namespace icp_slam
@@ -103,7 +103,7 @@ protected:
   sensor_msgs::LaserScanPtr last_kf_laser_scan_;     ///< laser scan of last kf
   tf::StampedTransform last_kf_tf_odom_laser_;    ///< Transform in odom frame of last keyframe
   tf::StampedTransform last_kf_tf_map_laser_;     ///< Transform in map frame of last keyframe
-
+  cv::Mat last_laser_scan_;
 
   tfScalar max_keyframes_distance_;
   tfScalar max_keyframes_angle_;
