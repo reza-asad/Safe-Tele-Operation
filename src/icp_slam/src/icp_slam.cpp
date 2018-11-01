@@ -49,8 +49,22 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
 {
   assert(current_frame_tf.frame_id_ == last_kf_tf.frame_id_);
   assert(current_frame_tf.child_frame_id_ == last_kf_tf.child_frame_id_);
-  tf::Vector3 current_dist = current_frame_tf.getOrigin();
-  tf::Vector3 last_dist = last_kf_tf.getOrigin(); 
+
+  // compute distance between frames
+  tf::Vector3 current_orig_ = current_frame_tf.getOrigin();
+  tf::Vector3 last_orig_ = last_kf_tf.getOrigin();
+  tfScalar keyframes_dist_ = sqrt(pow(current_orig_.x() - last_orig_.x(), 2) + pow(current_orig_.y() - last_orig_.y(), 2));
+
+  // compute the angle diff between frames
+  double keyframes_time_ = (current_frame_tf.stamp_.toSec() - last_kf_tf.stamp_.toSec()) < max_keyframes_time_;
+
+  // compute the angle difference between frames
+  tfScalar keyframes_angle_ = abs(current_frame_tf.getRotation().getAngle() - last_kf_tf.getRotation().getAngle());
+
+  return ((keyframes_dist_ <= max_keyframes_distance_) & 
+          (keyframes_time_ <= max_keyframes_time_) &
+          (keyframes_angle_ <= max_keyframes_angle_));
+
 
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
 }
