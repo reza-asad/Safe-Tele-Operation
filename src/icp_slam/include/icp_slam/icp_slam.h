@@ -13,7 +13,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <tf/tf.h>
-
+#include <icp_slam/utils.h>
 #include <opencv2/opencv.hpp>
 
 namespace icp_slam
