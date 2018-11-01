@@ -22,7 +22,7 @@ ICPSlam::ICPSlam(tfScalar max_keyframes_distance, tfScalar max_keyframes_angle, 
   : max_keyframes_distance_(max_keyframes_distance),
     max_keyframes_angle_(max_keyframes_angle),
     max_keyframes_time_(max_keyframes_time),
-    last_kf_laser_scan_(new sensor_msgs::LaserScan()),
+    // last_kf_laser_scan_(new sensor_msgs::LaserScan()),
     is_tracker_running_(false)
 {
   last_kf_tf_odom_laser_.stamp_ = ros::Time(0);
@@ -77,9 +77,9 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
   // compute the angle difference between frames
   tfScalar keyframes_angle_ = abs(current_frame_tf.getRotation().getAngle() - last_kf_tf.getRotation().getAngle());
 
-  return ((keyframes_dist_ <= max_keyframes_distance_) & 
-          (keyframes_time_ <= max_keyframes_time_) &
-          (keyframes_angle_ <= max_keyframes_angle_));
+  return ((keyframes_dist_ > max_keyframes_distance_) || 
+          (keyframes_time_ > max_keyframes_time_) ||
+          (keyframes_angle_ > max_keyframes_angle_));
 
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
 }
