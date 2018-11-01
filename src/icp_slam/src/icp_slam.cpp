@@ -49,7 +49,8 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
 {
   assert(current_frame_tf.frame_id_ == last_kf_tf.frame_id_);
   assert(current_frame_tf.child_frame_id_ == last_kf_tf.child_frame_id_);
-  // ROS_INFO("current_frame_tf time stamp %" , (double)current_frame_tf.stamp_);
+  tf::Vector3 current_dist = current_frame_tf.getOrigin();
+  tf::Vector3 last_dist = last_kf_tf.getOrigin(); 
 
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
 }
