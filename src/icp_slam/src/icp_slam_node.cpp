@@ -114,6 +114,13 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
 
   // TODO: get laser pose in odom frame (using tf)
   tf::StampedTransform tf_odom_laser;
+  try {
+    tf_listener_.lookupTransform("odom", "base_link", ros::Time(0), tf_odom_laser);
+  } catch (tf::TransformException &ex) {
+    ROS_ERROR("%s", ex.what());
+    ros::Duration(1.0).sleep();
+    continue;
+  }   
 
   // current pose
   tf::StampedTransform tf_map_laser;

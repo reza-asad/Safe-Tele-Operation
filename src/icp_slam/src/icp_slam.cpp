@@ -22,7 +22,7 @@ ICPSlam::ICPSlam(tfScalar max_keyframes_distance, tfScalar max_keyframes_angle, 
   : max_keyframes_distance_(max_keyframes_distance),
     max_keyframes_angle_(max_keyframes_angle),
     max_keyframes_time_(max_keyframes_time),
-    // last_kf_laser_scan_(new sensor_msgs::LaserScan()),
+    last_kf_laser_scan_(new sensor_msgs::LaserScan()),
     is_tracker_running_(false)
 {
   last_kf_tf_odom_laser_.stamp_ = ros::Time(0);
@@ -39,15 +39,16 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     ROS_WARN_THROTTLE(1.0, "Couldn't track frame, tracker already running");
     return false;
   }
-
+  is_tracker_running_ = true;
   // Find the conversion from map 
   tf::Transform map_to_curent_frame_tf = tf_map_laser * current_frame_tf_odom_laser.inverse();
   if (isCreateKeyframe(current_frame_tf_odom_laser, tf_map_laser)) {
     // convert the latest laser map to map frame
     cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
-    cv::Mat current_laser_scan = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
+    cv::Mat current_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
 
     // run ICP between current scan and last laser scan
+    icp_transform_ = icpIteration(last_laser_scan_, current_laser_scan_)
 
     // align the new laser scan based on ICP
 
@@ -56,6 +57,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
     last_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
   }
+  is_tracker_running_ = false;
   // TODO: find the pose of laser in map frame
   // if a new keyframe is created, run ICP
   // if not a keyframe, obtain the laser pose in map frame based on odometry update
@@ -82,6 +84,12 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
           (keyframes_angle_ > max_keyframes_angle_));
 
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
+}
+
+static tf::Transform icpIteration(cv::Mat &point_mat1,
+                                  cv::Mat &point_mat2) 
+{
+
 }
 
 void ICPSlam::closestPoints(cv::Mat &point_mat1,
