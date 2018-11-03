@@ -119,7 +119,6 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
   } catch (tf::TransformException &ex) {
     ROS_ERROR("%s", ex.what());
     ros::Duration(1.0).sleep();
-    continue;
   }   
 
   // current pose

@@ -32,32 +32,61 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
                     const tf::StampedTransform &current_frame_tf_odom_laser,
                     tf::StampedTransform &tf_map_laser)
 {
-
-
   if (is_tracker_running_)
   {
     ROS_WARN_THROTTLE(1.0, "Couldn't track frame, tracker already running");
     return false;
   }
   is_tracker_running_ = true;
+  // Initialize the last key frame wrt odom 
+  if (last_kf_laser_scan_->ranges.size() == 0) 
+  {
+    last_kf_tf_odom_laser_.frame_id_ = current_frame_tf_odom_laser.frame_id_;
+    last_kf_tf_odom_laser_.child_frame_id_ = current_frame_tf_odom_laser.child_frame_id_;
+    last_kf_tf_odom_laser_.setOrigin(current_frame_tf_odom_laser.getOrigin());
+    last_kf_tf_odom_laser_.setRotation(current_frame_tf_odom_laser.getRotation());
+
+    tf_map_laser.frame_id_ = "map";
+    tf_map_laser.child_frame_id_ = current_frame_tf_odom_laser.frame_id_;
+    tf_map_laser.setOrigin(current_frame_tf_odom_laser.getOrigin());
+    tf_map_laser.setRotation(current_frame_tf_odom_laser.getRotation());
+
+    // copy the laser scan
+    last_kf_laser_scan_->ranges = laser_scan->ranges;
+    last_kf_laser_scan_->angle_min = laser_scan->angle_min;
+    last_kf_laser_scan_->angle_max = laser_scan->angle_max;
+    last_kf_laser_scan_->angle_increment = laser_scan->angle_increment;
+    last_scan_matrix = utils::laserScanToPointMat(last_kf_laser_scan_);
+  }
   // Find the conversion from map 
-  tf::Transform map_to_curent_frame_tf = tf_map_laser * current_frame_tf_odom_laser.inverse();
-  if (isCreateKeyframe(current_frame_tf_odom_laser, tf_map_laser)) {
-    // convert the latest laser map to map frame
-    cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
-    cv::Mat current_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
+  bool is_key_frame = isCreateKeyframe(current_frame_tf_odom_laser, last_kf_tf_odom_laser_); 
+  if (is_key_frame) 
+  {
+    // convert the laser scans to matrix
+    cv::Mat current_scan_matrix = utils::laserScanToPointMat(laser_scan);
 
     // run ICP between current scan and last laser scan
-    icp_transform_ = icpIteration(last_laser_scan_, current_laser_scan_)
+    // tf::Transform icp_transform_ = icpIteration(last_scan_matrix, current_scan_matrix);
 
-    // align the new laser scan based on ICP
+    // refine the icp transform and align the current scan
+    // icp_transform_ = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_);
+    // last_scan_matrix = transformPointMat(tf::Transform icp_transform_, current_scan_matrix)
+
+    // update the robot's last pose and laser scan wrt odom
+    last_kf_tf_odom_laser_.stamp_ = ros::Time(0);
+    last_kf_tf_odom_laser_.setOrigin(current_frame_tf_odom_laser.getOrigin());
+    last_kf_tf_odom_laser_.setRotation(current_frame_tf_odom_laser.getRotation());
+
+    // update the robot's pose wrt to map
+    // tf_map_laser = last_kf_tf_odom_laser_;
 
   } else {
     // obtain laser pose in map based on odometry update
-    cv::Mat scan_matrix = utils::laserScanToPointMat(laser_scan);
-    last_laser_scan_ = utils::transformPointMat(map_to_curent_frame_tf, scan_matrix);
+    last_kf_tf_map_laser_ = current_frame_tf_odom_laser * tf_map_laser.inverse();
   }
   is_tracker_running_ = false;
+
+  // return is_key_frame;
   // TODO: find the pose of laser in map frame
   // if a new keyframe is created, run ICP
   // if not a keyframe, obtain the laser pose in map frame based on odometry update
@@ -86,11 +115,31 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
 }
 
-static tf::Transform icpIteration(cv::Mat &point_mat1,
-                                  cv::Mat &point_mat2) 
+tf::Transform icpIteration(cv::Mat &point_mat1,
+                           cv::Mat &point_mat2) 
 {
+  // Find the means and normalize
+  // cv::Mat mu_x;
+  // cv::reduce(point_mat1, mu_x, 0);
+  // mu_x /= point_mat1.rows;
 
+  // cv::Mat mu_p;
+  // cv::reduce(point_mat2, mu_p, 0);
+  // mu_p /= point_mat2.rows;
+
+  // calculate the covarianc matrix
+  
+  // compute the SVD.
+
+  // compute the rotation and translation
+  // return last_kf_tf_odom_laser_;
 }
+
+// static tf::Transform icpRegistration(const cv::Mat last_scan_matrix,
+//                                      const cv::Mat current_scan_matrix,
+//                                      const tf::Transform &T_2_1)
+// {
+// }
 
 void ICPSlam::closestPoints(cv::Mat &point_mat1,
                             cv::Mat &point_mat2,
