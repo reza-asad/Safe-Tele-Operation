@@ -66,7 +66,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     cv::Mat current_scan_matrix = utils::laserScanToPointMat(laser_scan);
 
     // run ICP between current scan and last laser scan
-    // tf::Transform icp_transform_ = icpIteration(last_scan_matrix, current_scan_matrix);
+    tf::Transform icp_transform_ = icpIteration(last_scan_matrix, current_scan_matrix);
 
     // refine the icp transform and align the current scan
     // icp_transform_ = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_);
@@ -115,24 +115,63 @@ bool ICPSlam::isCreateKeyframe(const tf::StampedTransform &current_frame_tf, con
   // TODO: check whether you want to create keyframe (based on max_keyframes_distance_, max_keyframes_angle_, max_keyframes_time_)
 }
 
-tf::Transform icpIteration(cv::Mat &point_mat1,
-                           cv::Mat &point_mat2) 
+tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
+                                    cv::Mat &point_mat2) 
 {
   // Find the means and normalize
-  // cv::Mat mu_x;
-  // cv::reduce(point_mat1, mu_x, 0);
-  // mu_x /= point_mat1.rows;
+  cv::Mat mu_x;
+  cv::reduce(point_mat1, mu_x, 0, CV_REDUCE_SUM);
+  mu_x /= point_mat1.rows;
 
-  // cv::Mat mu_p;
-  // cv::reduce(point_mat2, mu_p, 0);
-  // mu_p /= point_mat2.rows;
+  cv::Mat mu_p;
+  cv::reduce(point_mat2, mu_p, 0, CV_REDUCE_SUM);
+  mu_p /= point_mat2.rows;
 
   // calculate the covarianc matrix
+  cv::Mat mu_x_transpose;
+  cv::transpose(mu_x, mu_x_transpose);
+  cv::Mat w = mu_x_transpose * mu_p;
   
   // compute the SVD.
+  cv::SVD svd(w);
 
   // compute the rotation and translation
-  // return last_kf_tf_odom_laser_;
+  cv::Mat R = svd.u * svd.vt;
+  cv::Mat t = mu_x - R * mu_p;
+
+  // create the transform form the rotation and translation
+  tf::Transform icp_transform_;
+  icp_transform_.setOrigin(tf::Vector3(t.at<float>(0), t.at<float>(1), 0.0));
+  double theta;
+  double cos_theta = R.at<float>(0,0);
+  double sin_theta = R.at<float>(1,0);
+  if (cos_theta == 0) cos_theta += 1e-6;
+  if (sin_theta >= 0) 
+  {
+    if (cos_theta > 0) 
+    {
+      theta = atan(atan(sin_theta/cos_theta));   
+    } 
+    else 
+    {
+      theta = M_PI - atan(sin_theta/cos_theta);
+    }
+  } 
+  else 
+  {
+    if (cos_theta > 0)
+    {
+      theta = atan(atan(sin_theta/cos_theta));
+    }
+    else
+    {
+      theta = atan(atan(sin_theta/cos_theta)) - M_PI; 
+    }
+  }
+
+  icp_transform_.setRotation(tf::createQuaternionFromYaw(theta));
+
+  return icp_transform_;
 }
 
 // static tf::Transform icpRegistration(const cv::Mat last_scan_matrix,
