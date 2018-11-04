@@ -189,14 +189,14 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat last_scan_matrix,
 
   // only take the top %99 points wrt error
   std::vector<float> sorted_errors = errors;
-  std::sort(sorted_errors.begin(), sorted_errors.end(), std::greater<float>());
-  int min_error_idx = 0.99 * errors.size();
-  float min_error = sorted_errors[min_error_idx];
+  std::sort(sorted_errors.begin(), sorted_errors.end());
+  int max_error_idx = 0.99 * errors.size();
+  float max_error = sorted_errors[max_error_idx];
   cv::Mat last_scan_trimmed;
   cv::Mat current_scan_trimmed;
   for (int i=0; i<errors.size(); ++i)
   {
-    if (errors[i] > min_error)
+    if (errors[i] < max_error)
     {
       last_scan_trimmed.push_back(last_scan_matrix.row(i));
       current_scan_trimmed.push_back(current_scan_matrix.row(i));
