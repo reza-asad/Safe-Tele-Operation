@@ -65,12 +65,14 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     // convert the laser scans to matrix
     cv::Mat current_scan_matrix = utils::laserScanToPointMat(laser_scan);
 
+    // Find correspondences between previous and current laser scan.
+
     // run ICP between current scan and last laser scan
     tf::Transform icp_transform_ = icpIteration(last_scan_matrix, current_scan_matrix);
 
     // refine the icp transform and align the current scan
-    // icp_transform_ = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_);
-    // last_scan_matrix = transformPointMat(tf::Transform icp_transform_, current_scan_matrix)
+    icp_transform_ = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_);
+    last_scan_matrix = utils::transformPointMat(icp_transform_, current_scan_matrix);
 
     // update the robot's last pose and laser scan wrt odom
     last_kf_tf_odom_laser_.stamp_ = ros::Time(0);
@@ -174,11 +176,35 @@ tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
   return icp_transform_;
 }
 
-// static tf::Transform icpRegistration(const cv::Mat last_scan_matrix,
-//                                      const cv::Mat current_scan_matrix,
-//                                      const tf::Transform &T_2_1)
-// {
-// }
+tf::Transform ICPSlam::icpRegistration(cv::Mat last_scan_matrix,
+                                       cv::Mat current_scan_matrix,
+                                       const tf::Transform &T_2_1)
+{
+  // apply the transformation and compute the error.
+  cv::Mat current_scan_transformed = utils::transformPointMat(T_2_1, current_scan_matrix);
+  cv::Mat diff = current_scan_transformed - last_scan_matrix;
+  cv::multiply(diff, diff, diff);
+  std::vector<float> errors;
+  cv::reduce(diff, errors, 1, CV_REDUCE_SUM);
+
+  // only take the top %99 points wrt error
+  std::vector<float> sorted_errors = errors;
+  std::sort(sorted_errors.begin(), sorted_errors.end(), std::greater<float>());
+  int min_error_idx = 0.99 * errors.size();
+  float min_error = sorted_errors[min_error_idx];
+  cv::Mat last_scan_trimmed;
+  cv::Mat current_scan_trimmed;
+  for (int i=0; i<errors.size(); ++i)
+  {
+    if (errors[i] > min_error)
+    {
+      last_scan_trimmed.push_back(last_scan_matrix.row(i));
+      current_scan_trimmed.push_back(current_scan_matrix.row(i));
+    }
+  }
+  tf::Transform icp_transform_ = icpIteration(last_scan_trimmed, current_scan_trimmed); 
+  return icp_transform_;
+}
 
 void ICPSlam::closestPoints(cv::Mat &point_mat1,
                             cv::Mat &point_mat2,
