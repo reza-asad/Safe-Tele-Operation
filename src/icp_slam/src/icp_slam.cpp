@@ -56,7 +56,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     last_kf_laser_scan_->angle_min = laser_scan->angle_min;
     last_kf_laser_scan_->angle_max = laser_scan->angle_max;
     last_kf_laser_scan_->angle_increment = laser_scan->angle_increment;
-    last_scan_matrix = utils::laserScanToPointMat(last_kf_laser_scan_);
+    last_scan_trimmed = utils::laserScanToPointMat(last_kf_laser_scan_);
   }
   // Find the conversion from map 
   bool is_key_frame = isCreateKeyframe(current_frame_tf_odom_laser, last_kf_tf_odom_laser_); 
@@ -66,13 +66,33 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     cv::Mat current_scan_matrix = utils::laserScanToPointMat(laser_scan);
 
     // Find correspondences between previous and current laser scan.
+    std::vector<int> closest_indices;
+    std::vector<float> closest_distances_2;
+    closestPoints(last_scan_trimmed, current_scan_matrix, closest_indices,
+                  closest_distances_2);
+
+    float mean_val=0;
+    float std_val=0;
+    utils::meanAndStdDev(closest_distances_2, mean_val, std_val);
+    cv::Mat last_scan_temp;
+    cv::Mat current_scan_trimmed;
+    for (int i=0; i<last_scan_trimmed.rows; ++i)
+    {
+      if ((closest_distances_2[i] > (mean_val - 2 * std_val)) && (closest_distances_2[i] < (mean_val + 2 * std_val)))
+      {
+        last_scan_temp.push_back(last_scan_trimmed.row(i));
+        current_scan_trimmed.push_back(current_scan_matrix.row(closest_indices[i]));
+      }
+    }
+    last_scan_trimmed = last_scan_temp.clone();
+    last_scan_temp.release();
 
     // run ICP between current scan and last laser scan
-    tf::Transform icp_transform_ = icpIteration(last_scan_matrix, current_scan_matrix);
+    tf::Transform icp_transform_ = icpIteration(last_scan_trimmed, current_scan_trimmed);
 
     // refine the icp transform and align the current scan
-    icp_transform_ = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_);
-    last_scan_matrix = utils::transformPointMat(icp_transform_, current_scan_matrix);
+    icp_transform_ = icpRegistration(last_scan_trimmed, current_scan_trimmed, icp_transform_);
+    last_scan_trimmed = utils::transformPointMat(icp_transform_, current_scan_trimmed);
 
     // update the robot's last pose and laser scan wrt odom
     last_kf_tf_odom_laser_.stamp_ = ros::Time(0);
@@ -82,9 +102,10 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     // update the robot's pose wrt to map
     // tf_map_laser = last_kf_tf_odom_laser_;
 
-  } else {
+  } else 
+  {
     // obtain laser pose in map based on odometry update
-    last_kf_tf_map_laser_ = current_frame_tf_odom_laser * tf_map_laser.inverse();
+    // last_kf_tf_map_laser_ = current_frame_tf_odom_laser * tf_map_laser.inverse();
   }
   is_tracker_running_ = false;
 
@@ -176,8 +197,8 @@ tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
   return icp_transform_;
 }
 
-tf::Transform ICPSlam::icpRegistration(cv::Mat last_scan_matrix,
-                                       cv::Mat current_scan_matrix,
+tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
+                                       cv::Mat &current_scan_matrix,
                                        const tf::Transform &T_2_1)
 {
   // apply the transformation and compute the error.
@@ -192,17 +213,23 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat last_scan_matrix,
   std::sort(sorted_errors.begin(), sorted_errors.end());
   int max_error_idx = 0.99 * errors.size();
   float max_error = sorted_errors[max_error_idx];
-  cv::Mat last_scan_trimmed;
-  cv::Mat current_scan_trimmed;
+  cv::Mat last_scan_pruned;
+  cv::Mat current_scan_pruned;
   for (int i=0; i<errors.size(); ++i)
   {
     if (errors[i] < max_error)
     {
-      last_scan_trimmed.push_back(last_scan_matrix.row(i));
-      current_scan_trimmed.push_back(current_scan_matrix.row(i));
+      last_scan_pruned.push_back(last_scan_matrix.row(i));
+      current_scan_pruned.push_back(current_scan_matrix.row(i));
     }
   }
-  tf::Transform icp_transform_ = icpIteration(last_scan_trimmed, current_scan_trimmed); 
+  tf::Transform icp_transform_ = icpIteration(last_scan_pruned, current_scan_pruned);
+  // modify the input matrices to match the trimmed version
+  last_scan_matrix = last_scan_pruned.clone();
+  current_scan_matrix = current_scan_pruned.clone();
+  last_scan_pruned.release();
+  current_scan_pruned.release();
+  
   return icp_transform_;
 }
 
