@@ -48,6 +48,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
 
     tf_map_laser.frame_id_ = "map";
     tf_map_laser.child_frame_id_ = current_frame_tf_odom_laser.frame_id_;
+    tf_map_laser.stamp_ = ros::Time::now();
     tf_map_laser.setOrigin(current_frame_tf_odom_laser.getOrigin());
     tf_map_laser.setRotation(current_frame_tf_odom_laser.getRotation());
 
@@ -78,7 +79,9 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     cv::Mat current_scan_trimmed;
     for (int i=0; i<last_scan_trimmed.rows; ++i)
     {
-      if ((closest_distances_2[i] > (mean_val - 2 * std_val)) && (closest_distances_2[i] < (mean_val + 2 * std_val)))
+      bool I1 = closest_distances_2[i] > (mean_val - 2 * std_val);
+      bool I2 = closest_distances_2[i] < (mean_val + 2 * std_val);
+      if (I1 && I2 && (closest_indices[i] >= 0) )
       {
         last_scan_temp.push_back(last_scan_trimmed.row(i));
         current_scan_trimmed.push_back(current_scan_matrix.row(closest_indices[i]));
@@ -105,7 +108,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
   } else 
   {
     // obtain laser pose in map based on odometry update
-    // last_kf_tf_map_laser_ = current_frame_tf_odom_laser * tf_map_laser.inverse();
+    last_kf_tf_map_laser_ = current_frame_tf_odom_laser * tf_map_laser.inverse();
   }
   is_tracker_running_ = false;
 
@@ -229,7 +232,7 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
   current_scan_matrix = current_scan_pruned.clone();
   last_scan_pruned.release();
   current_scan_pruned.release();
-  
+
   return icp_transform_;
 }
 

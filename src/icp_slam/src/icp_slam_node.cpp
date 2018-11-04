@@ -135,6 +135,8 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
   }
 
   // TODO: broadcast odom to map transform (using tf)
+  tf::TransformBroadcaster br;
+  br.sendTransform(tf_map_laser);
 }
 
 void ICPSlamNode::publishMap(ros::Time timestamp)
@@ -147,5 +149,6 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "icp_slam_node");
   ICPSlamNode icp_slam_node;
   ros::spin();
+
   return 0;
 }
