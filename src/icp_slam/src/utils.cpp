@@ -21,6 +21,7 @@ cv::Mat laserScanToPointMat(const sensor_msgs::LaserScanConstPtr &scan)
     scan_matrix.at<float>(i, 1) = y;
     angle_min += scan->angle_increment;
   }
+  return scan_matrix;
 }
 
 cv::Mat transformPointMat(tf::Transform transform, cv::Mat &point_mat)
@@ -33,6 +34,7 @@ cv::Mat transformPointMat(tf::Transform transform, cv::Mat &point_mat)
   cv::Mat(point_mat.t()).copyTo(point_mat_homogeneous.rowRange(0, 2));
 
   auto T = transformToMatrix(transform);
+  // std::cout << T << std::endl; 
   cv::Mat transformed_point_mat =  T * point_mat_homogeneous;
   return cv::Mat(transformed_point_mat.t()).colRange(0, 2);
 }

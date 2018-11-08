@@ -12,6 +12,7 @@
 #include <icp_slam/icp_slam.h>
 #include <icp_slam/mapper.h>
 
+using namespace std;
 using namespace icp_slam;
 
 /**
@@ -63,7 +64,7 @@ protected:
 
 ICPSlamNode::ICPSlamNode() : local_nh_("~")
 {
-  laser_sub_ = global_nh_.subscribe("base_scan", 10, &ICPSlamNode::laserCallback, this);
+  laser_sub_ = global_nh_.subscribe("scan", 10, &ICPSlamNode::laserCallback, this);
   map_publisher_ = local_nh_.advertise<nav_msgs::OccupancyGrid>("map", 1);
 
   // getting ROS parameters:
@@ -115,12 +116,13 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
   // TODO: get laser pose in odom frame (using tf)
   tf::StampedTransform tf_odom_laser;
   try {
-    tf_listener_.lookupTransform("odom", "base_link", ros::Time(0), tf_odom_laser);
+    tf_listener_.lookupTransform(odom_frame_id_, "base_link", ros::Time(0), tf_odom_laser);
   } catch (tf::TransformException &ex) {
     ROS_ERROR("%s", ex.what());
     ros::Duration(1.0).sleep();
-  }   
-
+  }
+  // cout << tf_odom_laser.getOrigin().x() << ", " << tf_odom_laser.getOrigin().y() << " original" << endl;
+  // cout << tf_odom_laser.stamp_.toSec() << endl;
   // current pose
   tf::StampedTransform tf_map_laser;
   auto is_keyframe = icp_slam_->track(laser_msg, tf_odom_laser, tf_map_laser);
@@ -135,8 +137,8 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
   }
 
   // TODO: broadcast odom to map transform (using tf)
-  tf::TransformBroadcaster br;
-  br.sendTransform(tf_map_laser);
+  // tf::TransformBroadcaster br;
+  // br.sendTransform(tf_map_laser);
 }
 
 void ICPSlamNode::publishMap(ros::Time timestamp)
@@ -149,6 +151,9 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "icp_slam_node");
   ICPSlamNode icp_slam_node;
   ros::spin();
-
+  
   return 0;
 }
+
+//rosnode info /stageros to see the topics before you run the simulation.
+// catkin_make --force-cmake
