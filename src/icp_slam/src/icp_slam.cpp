@@ -52,12 +52,11 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     last_kf_tf_odom_laser_.setRotation(current_frame_tf_odom_laser.getRotation());
     
     // define map
-    tf_map_laser.frame_id_ = current_frame_tf_odom_laser.frame_id_;
-    tf_map_laser.child_frame_id_ = "map";
-    tf_map_laser.stamp_ = ros::Time::now();
-    // cout << current_frame_tf_odom_laser.getOrigin().x() << ", " << current_frame_tf_odom_laser.getOrigin().y() << endl;
-    tf_map_laser.setOrigin(current_frame_tf_odom_laser.getOrigin());
-    tf_map_laser.setRotation(current_frame_tf_odom_laser.getRotation());
+    last_kf_tf_map_laser_.frame_id_ = "map";
+    last_kf_tf_map_laser_.child_frame_id_ = current_frame_tf_odom_laser.frame_id_;
+    last_kf_tf_map_laser_.stamp_ = ros::Time::now();
+    last_kf_tf_map_laser_.setOrigin(current_frame_tf_odom_laser.getOrigin());
+    last_kf_tf_map_laser_.setRotation(current_frame_tf_odom_laser.getRotation());
 
     // copy the laser scan
     *last_kf_laser_scan_ = *laser_scan;
@@ -99,10 +98,8 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
       }
     }
     last_scan_trimmed = last_scan_temp.clone();
-    last_scan_temp.release();
     // std::cout << current_scan_trimmed.rows << std::endl;
     // std::cout << last_scan_trimmed.rows << std::endl; 
-    // vizClosestPoints(last_scan_trimmed, current_scan_trimmed, icp_transform_);
 
     // std::cout << last_scan_trimmed.rows << "last" << std::endl;
     icp_transform_ = icpRegistration(last_scan_trimmed, current_scan_trimmed, icp_transform_);
@@ -111,7 +108,10 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
 
     // update the robot's pose wrt to the map.
     tf_map_laser.stamp_ = ros::Time::now();
-    tf_map_laser.setData(tf_map_laser.inverse() * icp_transform_);
+    tf_map_laser.frame_id_ = last_kf_tf_map_laser_.frame_id_;
+    tf_map_laser.child_frame_id_ = last_kf_tf_map_laser_.child_frame_id_;
+    tf_map_laser.setData(last_kf_tf_map_laser_ * icp_transform_);
+    last_kf_tf_map_laser_ = tf_map_laser;
 
     // update the robot's last pose wrt to the odom.
     last_kf_tf_odom_laser_.stamp_ = ros::Time::now();
@@ -204,7 +204,7 @@ tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
   {
     if (cos_theta > 0) 
     {
-      theta = atan(atan(sin_theta/cos_theta));   
+      theta = atan(sin_theta/cos_theta);   
     } 
     else 
     {
@@ -215,11 +215,11 @@ tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
   {
     if (cos_theta > 0)
     {
-      theta = atan(atan(sin_theta/cos_theta));
+      theta = atan(sin_theta/cos_theta);
     }
     else
     {
-      theta = atan(atan(sin_theta/cos_theta)) - M_PI; 
+      theta = atan(sin_theta/cos_theta) - M_PI; 
     }
   }
 
@@ -238,9 +238,13 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
 
   tf::Transform icp_transform;
   tf::Transform prev_transform = T_2_1;
-  for (int i=0; i<300; ++i)
+  // double avg_err = 1.0;
+  // int counts = 0;
+  for (int i=0; i<100; ++i)
   {
-    icp_transform = icpIteration(last_scan_matrix_temp, current_scan_matrix_temp); 
+    // Find closests points according to the new icp transform
+    // retainClosest()
+    icp_transform = icpIteration(last_scan_matrix_temp, current_scan_matrix_temp);
     tf::Vector3 prev_orig = prev_transform.getOrigin();
     tf::Vector3 curr_orig = icp_transform.getOrigin();
     tfScalar dist = sqrt(pow(curr_orig.x() - prev_orig.x(), 2) + pow(curr_orig.y() - prev_orig.y(), 2));
@@ -250,6 +254,7 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
     // cout << icp_transform.getRotation().getAngle()  << ", angle " << prev_transform.getRotation().getAngle() << endl;
     // cout << "dist: " << dist << ", " << i << "  angle_diff: " << angle_diff << endl;
     if ((dist < 0.001) && (angle_diff < 0.001))
+    // if (avg_err < 0.001)
     {
       cout << "best iteraton" << endl;
       return icp_transform;
@@ -274,15 +279,20 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
       last_scan_matrix_temp = cv::Mat();
       current_scan_matrix_temp = cv::Mat();
       cout << max_error << " max error" << endl; 
+      // avg_err = 0;
+      // counts = 0;
       for (int j=0; j<errors.size(); ++j)
       {
         if (errors[j] < max_error)
         {
           cout << "happened" << endl;
+          // avg_err += errors[j];
+          // counts++;
           last_scan_matrix_temp.push_back(last_scan_matrix.row(j));
           current_scan_matrix_temp.push_back(current_scan_matrix.row(j));
         }
       }
+      // avg_err = avg_err / (counts+0.00001);
       // last_scan_matrix = last_scan_matrix_temp.clone();
       // current_scan_matrix = current_scan_matrix_temp.clone();
     }

@@ -12,8 +12,8 @@
 #include <icp_slam/icp_slam.h>
 #include <icp_slam/mapper.h>
 
-using namespace std;
 using namespace icp_slam;
+using namespace std;
 
 /**
  * @brief ROS interface to use ICP-SLAM from icp_slam.h
@@ -93,6 +93,12 @@ ICPSlamNode::ICPSlamNode() : local_nh_("~")
   local_nh_.param("ymax", y_max_, 15.0);
 
   // TODO: initialize the map (width_, height_, origin_)
+  width_ = (unsigned int)((x_max_ - x_min_) / resolution_);
+  height_ = (unsigned int)((y_max_ - y_min_) / resolution_);
+
+  origin_x_ = (x_max_ + x_min_) / 2;
+  origin_y_ = (y_max_ + y_min_) / 2;
+
 
   icp_slam_.reset(new ICPSlam(max_keyframes_distance, max_keyframes_angle, max_keyframes_time));
 
@@ -106,6 +112,8 @@ ICPSlamNode::ICPSlamNode() : local_nh_("~")
   occupancy_grid_.info.origin.position.y = y_min_;
   occupancy_grid_.info.origin.orientation.w = 1;
 
+  mapper_.initMap(width_, height_, resolution_, origin_x_, origin_y_);
+
 }
 
 void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
@@ -115,35 +123,66 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
 
   // TODO: get laser pose in odom frame (using tf)
   tf::StampedTransform tf_odom_laser;
-  try {
-    tf_listener_.lookupTransform(odom_frame_id_, "base_link", ros::Time(0), tf_odom_laser);
-  } catch (tf::TransformException &ex) {
-    ROS_ERROR("%s", ex.what());
-    ros::Duration(1.0).sleep();
+  try
+  {
+    tf_listener_.lookupTransform(odom_frame_id_, laser_msg->header.frame_id,
+                                 ros::Time(0), tf_odom_laser);
   }
-  // cout << tf_odom_laser.getOrigin().x() << ", " << tf_odom_laser.getOrigin().y() << " original" << endl;
-  // cout << tf_odom_laser.stamp_.toSec() << endl;
+  catch (tf::TransformException &ex)
+  {
+    ROS_ERROR("%s",ex.what());
+    ros::Duration(1.0).sleep();
+    return;
+  }
+
+
   // current pose
   tf::StampedTransform tf_map_laser;
   auto is_keyframe = icp_slam_->track(laser_msg, tf_odom_laser, tf_map_laser);
+  // tf_map_laser.getRotation().normalize();
+  // tf_odom_laser.getRotation().normalize();
+
+  tf::StampedTransform tf_odom_to_map;
+  tf_odom_to_map.stamp_ = ros::Time::now();
+  tf_odom_to_map.frame_id_ = map_frame_id_;
+  tf_odom_to_map.child_frame_id_ = odom_frame_id_;
+  tf_odom_to_map.setData(tf_map_laser * tf_odom_laser.inverse());
+  // tf_odom_to_map.getRotation().normalize();
+  // cout << tf::getYaw(tf_map_laser.getRotation()) << endl;
+  // cout << tf::getYaw(tf_odom_laser.getRotation()) << endl;
+  // cout << tf::getYaw(tf_odom_to_map.getRotation()) << endl;
   if (is_keyframe)
   {
     //TODO: update the map
+    mapper_.updateMap(laser_msg, tf_map_laser);
+    // TODO: broadcast odom to map transform (using tf)
+    tf_broadcaster_.sendTransform(tf_odom_to_map);
   }
 
   if (laser_msg->header.stamp - last_map_update > map_publish_interval_)
   {
+    mapper_.updateMap(laser_msg, tf_odom_laser);
     publishMap(laser_msg->header.stamp);
   }
 
   // TODO: broadcast odom to map transform (using tf)
-  // tf::TransformBroadcaster br;
-  // br.sendTransform(tf_map_laser);
+  // tf_broadcaster_.sendTransform(tf_odom_to_map);
+
 }
 
 void ICPSlamNode::publishMap(ros::Time timestamp)
 {
   // TODO: publish the occupancy grid map
+  auto map = mapper_.getMapCopy();
+
+  occupancy_grid_.header.stamp = timestamp;
+  // TODO: use map frame
+  occupancy_grid_.header.frame_id = map_frame_id_;
+
+  memcpy(occupancy_grid_.data.data(), map.data, map.total()*sizeof(int8_t));
+  map_publisher_.publish(occupancy_grid_);
+
+  cv::imwrite("/tmp/map.png", map);
 }
 
 int main(int argc, char **argv)
@@ -151,9 +190,5 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "icp_slam_node");
   ICPSlamNode icp_slam_node;
   ros::spin();
-  
   return 0;
 }
-
-//rosnode info /stageros to see the topics before you run the simulation.
-// catkin_make --force-cmake

@@ -18,32 +18,6 @@ tf/tf.h
 opencv2/opencv.hpp
 -
 
-/home/reza/Documents/CMPT742/Project03/src/icp_slam/include/icp_slam/mapper.h
-map
--
-boost/thread/recursive_mutex.hpp
--
-boost/atomic.hpp
--
-opencv2/opencv.hpp
--
-opencv2/core/core.hpp
--
-opencv2/imgproc/imgproc.hpp
--
-opencv2/highgui/highgui.hpp
--
-nav_msgs/Odometry.h
--
-sensor_msgs/LaserScan.h
--
-tf/tf.h
--
-omp.h
--
-atomic
--
-
 /home/reza/Documents/CMPT742/Project03/src/icp_slam/include/icp_slam/utils.h
 numeric
 -
@@ -74,10 +48,6 @@ icp_slam/icp_slam.h
 icp_slam/utils.h
 -
 icp_slam/config.h
--
-
-/home/reza/Documents/CMPT742/Project03/src/icp_slam/src/mapper.cpp
-icp_slam/mapper.h
 -
 
 /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/utils.cpp
@@ -156,24 +126,6 @@ ros/builtin_message_traits.h
 ros/message_operations.h
 -
 std_msgs/Header.h
--
-geometry_msgs/Pose.h
--
-
-/opt/ros/kinetic/include/geometry_msgs/PoseWithCovariance.h
-string
--
-vector
--
-map
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
 -
 geometry_msgs/Pose.h
 -
@@ -294,24 +246,6 @@ std_msgs/Header.h
 geometry_msgs/Twist.h
 -
 
-/opt/ros/kinetic/include/geometry_msgs/TwistWithCovariance.h
-string
--
-vector
--
-map
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-geometry_msgs/Twist.h
--
-
 /opt/ros/kinetic/include/geometry_msgs/Vector3.h
 string
 -
@@ -346,28 +280,6 @@ ros/message_operations.h
 std_msgs/Header.h
 -
 geometry_msgs/Vector3.h
--
-
-/opt/ros/kinetic/include/nav_msgs/Odometry.h
-string
--
-vector
--
-map
--
-ros/types.h
--
-ros/serialization.h
--
-ros/builtin_message_traits.h
--
-ros/message_operations.h
--
-std_msgs/Header.h
--
-geometry_msgs/PoseWithCovariance.h
--
-geometry_msgs/TwistWithCovariance.h
 -
 
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv/cxcore.h
@@ -443,10 +355,6 @@ opencv2/core/vsx_utils.hpp
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/opencv2/core/vsx_utils.hpp
 
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/bufferpool.hpp
-
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/core.hpp
-opencv2/core.hpp
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/opencv2/core.hpp
 
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/core/core_c.h
 opencv2/core/types_c.h
@@ -1150,10 +1058,6 @@ opencv2/videoio.hpp
 opencv2/highgui/highgui_c.h
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/opencv2/highgui/highgui_c.h
 
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/highgui/highgui.hpp
-opencv2/highgui.hpp
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/highgui/opencv2/highgui.hpp
-
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/highgui/highgui_c.h
 opencv2/core/core_c.h
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/highgui/opencv2/core/core_c.h
@@ -1207,10 +1111,6 @@ opencv2/highgui.hpp
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/opencv2/highgui.hpp
 opencv2/imgproc/imgproc_c.h
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/opencv2/imgproc/imgproc_c.h
-
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/imgproc/imgproc.hpp
-opencv2/imgproc.hpp
-/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/imgproc/opencv2/imgproc.hpp
 
 /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/imgproc/imgproc_c.h
 opencv2/imgproc/types_c.h

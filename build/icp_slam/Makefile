@@ -639,33 +639,6 @@ src/icp_slam_node.cpp.s:
 	cd /home/reza/Documents/CMPT742/Project03/build && $(MAKE) -f icp_slam/CMakeFiles/icp_slam_node.dir/build.make icp_slam/CMakeFiles/icp_slam_node.dir/src/icp_slam_node.cpp.s
 .PHONY : src/icp_slam_node.cpp.s
 
-src/mapper.o: src/mapper.cpp.o
-
-.PHONY : src/mapper.o
-
-# target to build an object file
-src/mapper.cpp.o:
-	cd /home/reza/Documents/CMPT742/Project03/build && $(MAKE) -f icp_slam/CMakeFiles/icp_slam.dir/build.make icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o
-.PHONY : src/mapper.cpp.o
-
-src/mapper.i: src/mapper.cpp.i
-
-.PHONY : src/mapper.i
-
-# target to preprocess a source file
-src/mapper.cpp.i:
-	cd /home/reza/Documents/CMPT742/Project03/build && $(MAKE) -f icp_slam/CMakeFiles/icp_slam.dir/build.make icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.i
-.PHONY : src/mapper.cpp.i
-
-src/mapper.s: src/mapper.cpp.s
-
-.PHONY : src/mapper.s
-
-# target to generate assembly for a file
-src/mapper.cpp.s:
-	cd /home/reza/Documents/CMPT742/Project03/build && $(MAKE) -f icp_slam/CMakeFiles/icp_slam.dir/build.make icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.s
-.PHONY : src/mapper.cpp.s
-
 src/utils.o: src/utils.cpp.o
 
 .PHONY : src/utils.o
@@ -740,9 +713,6 @@ help:
 	@echo "... src/icp_slam_node.o"
 	@echo "... src/icp_slam_node.i"
 	@echo "... src/icp_slam_node.s"
-	@echo "... src/mapper.o"
-	@echo "... src/mapper.i"
-	@echo "... src/mapper.s"
 	@echo "... src/utils.o"
 	@echo "... src/utils.i"
 	@echo "... src/utils.s"

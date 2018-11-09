@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o"
-  "CMakeFiles/icp_slam.dir/src/mapper.cpp.o"
   "CMakeFiles/icp_slam.dir/src/utils.cpp.o"
   "/home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.pdb"
   "/home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so"
