@@ -24,7 +24,7 @@ cv::Mat laserScanToPointMat(const sensor_msgs::LaserScanConstPtr &scan)
   return scan_matrix;
 }
 
-cv::Mat transformPointMat(tf::Transform transform, cv::Mat &point_mat)
+cv::Mat transformPointMat(const tf::Transform transform, cv::Mat &point_mat)
 {
   assert(point_mat.data);
   assert(!point_mat.empty());
