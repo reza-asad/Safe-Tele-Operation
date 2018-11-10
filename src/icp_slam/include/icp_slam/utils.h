@@ -133,7 +133,7 @@ cv::Mat laserScanToPointMat(const sensor_msgs::LaserScanConstPtr &scan);
  * @param point_mat Nx2 CV matrix of 2D points
  * @return Nx2 CV matrix of transformed point cloud
  */
-cv::Mat transformPointMat(tf::Transform transform, cv::Mat &point_mat);
+cv::Mat transformPointMat(const tf::Transform transform, cv::Mat &point_mat);
 
 } // namespace utils
 

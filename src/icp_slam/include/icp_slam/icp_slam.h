@@ -58,6 +58,26 @@ public:
    * @param laser_scan1
    * @param laser_scan2
    * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
+   */
+  static void retainClosest(cv::Mat &last_scan_matrix,
+                            cv::Mat &current_scan_matrix,
+                            const tf::Transform &T_2_1);
+
+  /**
+   *
+   * @param laser_scan1
+   * @param laser_scan2
+   * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
+   */
+  static void computeError(cv::Mat last_scan_matrix,
+                           cv::Mat current_scan_matrix,
+                           const tf::Transform &T_2_1,
+                           std::vector<float> &errors);
+  /**
+   *
+   * @param laser_scan1
+   * @param laser_scan2
+   * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
    * @return refined T_scan2_scan1
    */
   static tf::Transform icpRegistration(cv::Mat &last_scan_matrix,
@@ -103,7 +123,7 @@ protected:
   sensor_msgs::LaserScanPtr last_kf_laser_scan_;  ///< laser scan of last kf
   tf::StampedTransform last_kf_tf_odom_laser_;    ///< Transform in odom frame of last keyframe
   tf::StampedTransform last_kf_tf_map_laser_;     ///< Transform in map frame of last keyframe
-  cv::Mat last_scan_trimmed;
+  cv::Mat last_scan_hat;
   
   tfScalar max_keyframes_distance_;
   tfScalar max_keyframes_angle_;
