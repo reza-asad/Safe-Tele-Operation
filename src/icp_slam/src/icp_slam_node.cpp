@@ -155,7 +155,7 @@ void ICPSlamNode::laserCallback(const sensor_msgs::LaserScanConstPtr &laser_msg)
 
   if (laser_msg->header.stamp - last_map_update > map_publish_interval_)
   {
-    mapper_.updateMap(laser_msg, tf_odom_laser);
+    mapper_.updateMap(laser_msg, tf_map_laser);
     publishMap(laser_msg->header.stamp);
   }
 
