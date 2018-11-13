@@ -16,7 +16,9 @@ cv::Mat laserScanToPointMat(const sensor_msgs::LaserScanConstPtr &scan)
   float x = 0;
   float y = 0;
   for (int i=0; i<scan->ranges.size(); ++i) {
-    polarToCartesian(scan->ranges[i], angle_min, x, y);
+    double scan_val = scan->ranges[i];
+    if (scan->ranges[i] == 0) scan_val = 2.0;
+    polarToCartesian(scan_val, angle_min, x, y);
     scan_matrix.at<float>(i, 0) = x;
     scan_matrix.at<float>(i, 1) = y;
     angle_min += scan->angle_increment;

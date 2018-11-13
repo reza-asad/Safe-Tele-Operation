@@ -155,7 +155,7 @@ void ICPSlamNode::publishMap(ros::Time timestamp)
   occupancy_grid_.header.stamp = timestamp;
   map_publisher_.publish(occupancy_grid_);
 
-  // cv::imwrite("/tmp/map.png", map);
+  mapper_->vizOccupancyGrid(occupancy_grid_);
 }
 
 int main(int argc, char **argv)

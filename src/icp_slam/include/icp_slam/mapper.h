@@ -31,13 +31,13 @@
 namespace icp_slam
 {
 // cost values for different occupancy tyes
-static const unsigned char NO_INFORMATION = -1;
-static const unsigned char FREE_SPACE = 0;
-static const unsigned char LETHAL_OBSTACLE = 100;
+static const int8_t NO_INFORMATION = -1;
+static const int8_t FREE_SPACE = 0;
+static const int8_t LETHAL_OBSTACLE = 100;
 
-static const unsigned int FREE_SPACE_THRESHOLD = 10;
-static const unsigned int OBSTACLE_THRESHOLD = 51;
-static const int VOTE_WEIGHT = 10;
+static const int8_t FREE_SPACE_THRESHOLD = 20;
+static const int8_t OBSTACLE_THRESHOLD = 70;
+static const int8_t VOTE_WEIGHT = 10;
 
 class Mapper
 {
@@ -46,6 +46,7 @@ public:
   ~Mapper();
 
   cv::Mat getMapMatrix() {return map_matrix_;}
+  void vizOccupancyGrid(const nav_msgs::OccupancyGrid &occupancy_grid);
   void updateMap(const tf::StampedTransform &tf_map_laser, const sensor_msgs::LaserScanConstPtr &laser_msg, nav_msgs::OccupancyGrid &occupancy_grid);
 
   void mapToGridCoordinate(float map_x, float map_y, unsigned int &grid_x_, unsigned int &grid_y_);

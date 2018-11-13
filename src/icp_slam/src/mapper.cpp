@@ -16,13 +16,40 @@ namespace icp_slam
     grid_origin_x_ = width_ / 2;
     grid_origin_y_ = height_ / 2;
 
-    map_matrix_ = cv::Mat::ones(height, width, CV_8SC1) * ((icp_slam::FREE_SPACE + icp_slam::LETHAL_OBSTACLE)/2);
+    map_matrix_ = cv::Mat::ones(height, width, CV_8SC1) * icp_slam::NO_INFORMATION;
     first_update_ = true;
   }
 
   Mapper::~Mapper()
   {
 
+  }
+
+  void Mapper::vizOccupancyGrid(const nav_msgs::OccupancyGrid &occupancy_grid)
+  {
+    cv::Mat vizMat = cv::Mat(height_, width_, CV_32SC1);
+    for(int i = 0; i < height_ ; i++)
+    {
+      for(int j = 0; j < width_; j++)
+      {
+        int8_t grid_val = occupancy_grid.data[i * width_ + j];
+        int new_val = 0;
+        if(grid_val == icp_slam::FREE_SPACE)
+        {
+          new_val = 127;
+        }
+        else if(grid_val == icp_slam::LETHAL_OBSTACLE)
+        {
+          new_val = 0;
+        }
+        else
+        {
+          new_val = 255;
+        }
+        vizMat.at<int>(i ,j) = new_val;
+      }
+    }
+    cv::imwrite("/tmp/map.png", vizMat);
   }
 
   void Mapper::mapToGridCoordinate(float map_x, float map_y, unsigned int &grid_x_, unsigned int &grid_y_)
@@ -85,8 +112,8 @@ namespace icp_slam
 
         // if unknown point, set val to 50 + delta, otherwise set to old value + delta; truncate val to between 0 and 100
         int8_t old_val = map_matrix_.at<int8_t>(point.y, point.x);
-        int8_t new_val = 0;
-        new_val = old_val + delta;
+        int8_t new_val = old_val == icp_slam::NO_INFORMATION ? (icp_slam::FREE_SPACE + icp_slam::LETHAL_OBSTACLE) / 2 : old_val;
+        new_val += delta;
         new_val = fmax(fmin(new_val, icp_slam::LETHAL_OBSTACLE), icp_slam::FREE_SPACE); // clamp
         map_matrix_.at<int8_t>(point.y, point.x) = new_val;
       }
@@ -98,7 +125,7 @@ namespace icp_slam
       for(int j = 1; j < width_-1; j++)
       {
         int8_t grid_val = map_matrix_.at<int8_t>(i ,j);
-        if(grid_val >= icp_slam::OBSTACLE_THRESHOLD)
+        if(grid_val >= icp_slam::OBSTACLE_THRESHOLD && grid_val <= icp_slam::LETHAL_OBSTACLE)
         {
           grid_val = 100;
           occupancy_grid.data[(i-1) * width_ + (j-1)] = grid_val;
@@ -110,7 +137,7 @@ namespace icp_slam
           occupancy_grid.data[(i+1) * width_ + (j-1)] = grid_val;
           occupancy_grid.data[(i-1) * width_ + (j+1)] = grid_val;
         }
-        else if(grid_val <= icp_slam::FREE_SPACE_THRESHOLD)
+        else if(grid_val <= icp_slam::FREE_SPACE_THRESHOLD && grid_val >= icp_slam::FREE_SPACE)
         {
           grid_val = 0;
         }
