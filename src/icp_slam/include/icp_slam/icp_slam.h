@@ -58,26 +58,6 @@ public:
    * @param laser_scan1
    * @param laser_scan2
    * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
-   */
-  static void retainClosest(cv::Mat &last_scan_matrix,
-                            cv::Mat &current_scan_matrix,
-                            const tf::Transform &T_2_1);
-
-  /**
-   *
-   * @param laser_scan1
-   * @param laser_scan2
-   * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
-   */
-  static void computeError(cv::Mat last_scan_matrix,
-                           cv::Mat current_scan_matrix,
-                           const tf::Transform &T_2_1,
-                           std::vector<float> &errors);
-  /**
-   *
-   * @param laser_scan1
-   * @param laser_scan2
-   * @param T_2_1 estimated transform from scan2 to scan1 (T_scan2_scan1)
    * @return refined T_scan2_scan1
    */
   static tf::Transform icpRegistration(cv::Mat &last_scan_matrix,

@@ -19,7 +19,7 @@ SafeTeleop::SafeTeleop() :
   angular_vel_increment_(0.05),
   laser_safety_check_angle_(0.25),
   min_safety_impact_time_(0.5),
-  min_safety_distance_(0.3),
+  min_safety_distance_(0.5),
   linear_vel_(0.0),
   angular_vel_(0.0),
   last_command_timestamp_(0.0),

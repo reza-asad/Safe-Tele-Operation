@@ -81,9 +81,33 @@ icp_slam/CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o.provides: icp_slam/CMakeFile
 icp_slam/CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o.provides.build: icp_slam/CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o
 
 
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o: icp_slam/CMakeFiles/icp_slam.dir/flags.make
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o: /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/mapper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/reza/Documents/CMPT742/Project03/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o"
+	cd /home/reza/Documents/CMPT742/Project03/build/icp_slam && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/icp_slam.dir/src/mapper.cpp.o -c /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/mapper.cpp
+
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/icp_slam.dir/src/mapper.cpp.i"
+	cd /home/reza/Documents/CMPT742/Project03/build/icp_slam && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/mapper.cpp > CMakeFiles/icp_slam.dir/src/mapper.cpp.i
+
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/icp_slam.dir/src/mapper.cpp.s"
+	cd /home/reza/Documents/CMPT742/Project03/build/icp_slam && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/mapper.cpp -o CMakeFiles/icp_slam.dir/src/mapper.cpp.s
+
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.requires:
+
+.PHONY : icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.requires
+
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.provides: icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.requires
+	$(MAKE) -f icp_slam/CMakeFiles/icp_slam.dir/build.make icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.provides.build
+.PHONY : icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.provides
+
+icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.provides.build: icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o
+
+
 icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o: icp_slam/CMakeFiles/icp_slam.dir/flags.make
 icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o: /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/utils.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/reza/Documents/CMPT742/Project03/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/reza/Documents/CMPT742/Project03/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o"
 	cd /home/reza/Documents/CMPT742/Project03/build/icp_slam && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/icp_slam.dir/src/utils.cpp.o -c /home/reza/Documents/CMPT742/Project03/src/icp_slam/src/utils.cpp
 
 icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.i: cmake_force
@@ -108,12 +132,14 @@ icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o.provides.build: icp_slam/CMakeF
 # Object files for target icp_slam
 icp_slam_OBJECTS = \
 "CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o" \
+"CMakeFiles/icp_slam.dir/src/mapper.cpp.o" \
 "CMakeFiles/icp_slam.dir/src/utils.cpp.o"
 
 # External object files for target icp_slam
 icp_slam_EXTERNAL_OBJECTS =
 
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: icp_slam/CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o
+/home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: icp_slam/CMakeFiles/icp_slam.dir/build.make
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: /opt/ros/kinetic/lib/libtf.so
@@ -186,7 +212,7 @@ icp_slam_EXTERNAL_OBJECTS =
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_imgproc3.so.3.3.1
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: /opt/ros/kinetic/lib/x86_64-linux-gnu/libopencv_core3.so.3.3.1
 /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so: icp_slam/CMakeFiles/icp_slam.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/reza/Documents/CMPT742/Project03/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX shared library /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/reza/Documents/CMPT742/Project03/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared library /home/reza/Documents/CMPT742/Project03/devel/lib/libicp_slam.so"
 	cd /home/reza/Documents/CMPT742/Project03/build/icp_slam && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/icp_slam.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -195,6 +221,7 @@ icp_slam/CMakeFiles/icp_slam.dir/build: /home/reza/Documents/CMPT742/Project03/d
 .PHONY : icp_slam/CMakeFiles/icp_slam.dir/build
 
 icp_slam/CMakeFiles/icp_slam.dir/requires: icp_slam/CMakeFiles/icp_slam.dir/src/icp_slam.cpp.o.requires
+icp_slam/CMakeFiles/icp_slam.dir/requires: icp_slam/CMakeFiles/icp_slam.dir/src/mapper.cpp.o.requires
 icp_slam/CMakeFiles/icp_slam.dir/requires: icp_slam/CMakeFiles/icp_slam.dir/src/utils.cpp.o.requires
 
 .PHONY : icp_slam/CMakeFiles/icp_slam.dir/requires

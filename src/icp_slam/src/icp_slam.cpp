@@ -16,6 +16,7 @@
 #define TIME_DIFF(tic, toc) ((std::chrono::duration<double, std::milli>((toc) - (tic))).count())
 
 using namespace std;
+
 namespace icp_slam
 {
 
@@ -62,6 +63,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
   }
   // Find the conversion from map
   bool is_key_frame = isCreateKeyframe(current_frame_tf_odom_laser, last_kf_tf_odom_laser_);
+
   if (is_key_frame) 
   {
     // convert the laser scans to matrix
@@ -71,7 +73,7 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     // Find estimate of the transform between current and last pose.
     tf::Transform icp_transform_est = last_kf_tf_odom_laser_.inverse() * current_frame_tf_odom_laser;
     
-    // Use ICP to currect the estimate
+    // Use ICP to correct the estimate
     tf::Transform icp_transform = icpRegistration(last_scan_matrix, current_scan_matrix, icp_transform_est);
     last_scan_hat = utils::transformPointMat(icp_transform, current_scan_matrix);
 
@@ -98,7 +100,6 @@ bool ICPSlam::track(const sensor_msgs::LaserScanConstPtr &laser_scan,
     tf_map_laser.frame_id_ = last_kf_tf_map_laser_.frame_id_;
     tf_map_laser.child_frame_id_ = last_kf_tf_map_laser_.child_frame_id_;
     tf_map_laser.setData(last_kf_tf_map_laser_ * icp_transform_est);
-
   }
   is_tracker_running_ = false;
 
@@ -174,7 +175,6 @@ tf::Transform ICPSlam::icpIteration(cv::Mat &point_mat1,
   return icp_transform;
 }
 
-
 tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
                                        cv::Mat &current_scan_matrix,
                                        const tf::Transform &T_2_1)
@@ -196,7 +196,7 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
   for (int j=0; j<last_scan_matrix.rows; ++j)
   {
     bool I2 = closest_distances_2[j] < (mean_val + 2 * std_val);
-    if ((I2 && (closest_indices[j] >= 0)))
+    if (I2 && closest_indices[j] >= 0)
     {
       last_scan_temp.push_back(last_scan_matrix.row(j));
       current_scan_temp.push_back(current_scan_matrix.row(closest_indices[j]));
@@ -247,13 +247,13 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
     for (int j=0; j<last_scan_matrix.rows; ++j)
     {
       bool I2 = closest_distances_2[j] < (mean_val + 2 * std_val);
-      if ((I2 && (closest_indices[j] >= 0)))
+      if (I2 && closest_indices[j] >= 0)
       {
         last_scan_temp.push_back(last_scan_matrix.row(j));
         current_scan_temp.push_back(current_scan_matrix.row(closest_indices[j]));
       }
     }
-    // make sure the scan matrices are never zero after outlier rejection
+    // Make sure the matrices never become zero after outlier rejection
     if (last_scan_temp.rows == 0)
     {
       for (int j=0; j<last_scan_matrix.rows; ++j)
@@ -262,14 +262,12 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
         current_scan_temp.push_back(current_scan_matrix.row(closest_indices[j])); 
       }
     }
-
     // save scan matrices for visualization
     last_scans.push_back(last_scan_temp);
     current_scans.push_back(current_scan_temp);
 
-    // run icp
+    // run icp and save for visualization
     icp_transform = icpIteration(last_scan_temp, current_scan_temp);
-    // save icp for visualization
     icps.push_back(icp_transform);
 
     // compute the error
@@ -278,9 +276,9 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
     diff_squared = cv::Mat();
     cv::multiply(diff, diff, diff_squared);
     double curr_error = cv::sum(diff_squared)[0] / diff_squared.rows;
-    
+
     // check convergence
-    if ((curr_error < 0.01) && (prev_error < 0.01))
+    if ((curr_error < 0.0005) && (prev_error < 0.0005))
     {
       cout << "best iteraton was: " << i << endl;
       // only visualize if there were enough steps to icp
@@ -288,7 +286,7 @@ tf::Transform ICPSlam::icpRegistration(cv::Mat &last_scan_matrix,
       {
         for (int k=0; k<icps.size(); k++)
         {
-          vizClosestPoints(last_scans[k], current_scans[k], icps[k], k);   
+          vizClosestPoints(last_scans[k], current_scans[k], icps[k], k);
         }
       }
       return icp_transform;
@@ -420,7 +418,7 @@ void ICPSlam::vizClosestPoints(cv::Mat &point_mat1,
 
   cv::Mat tmp;
   cv::flip(img, tmp, 0);
-  cv::imwrite("/tmp/icp_laser"+std::to_string(iteraton)+".png", img);
+  cv::imwrite("/tmp/icp_laser" + std::to_string(iteraton) + ".png", img);
 }
 
 } // namespace icp_slam

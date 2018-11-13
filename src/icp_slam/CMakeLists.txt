@@ -127,7 +127,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/icp_slam.cpp
-  # src/mapper.cpp
+  src/mapper.cpp
   src/utils.cpp
 )
 
@@ -161,7 +161,6 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${OpenCV_LIBS}
   ${PROJECT_NAME}
-  ${PROJECT_SOURCE_DIR}/lib/libmapper.so
 )
 
 find_package(Doxygen)

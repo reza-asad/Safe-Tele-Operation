@@ -53,6 +53,23 @@ template <class T>
 inline T radianToDegree(T radian) { return radian * 180.0 / M_PI; }
 
 /**
+*
+* @tparam T float or double
+* @param angle angle to normalize (in radians)
+* @return normalize angle in the range (0, 2 * pi)
+*/
+template <class T>
+static T normalizeAngle(T angle)
+{
+  auto out_angle = std::fmod(angle, 2*M_PI);
+  if (out_angle < 0)
+  {
+    out_angle += 2*M_PI;
+  }
+  return out_angle;
+}
+
+/**
  *
  * @tparam T numeric type (usually float or double)
  * @param vec
